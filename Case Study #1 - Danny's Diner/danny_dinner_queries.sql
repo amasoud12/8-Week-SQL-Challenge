@@ -78,7 +78,32 @@ LEFT JOIN dannys_diner.sales AS s
 ON s.customer_id = m.customer_id AND m.last_order = s.order_date -- the reason that "AND m.last_order = s.order_date" is added is because you want the last_order date to equal the order date in question 
 
 -- What is the total items and amount spent for each member before they became a member?
+SELECT m.customer_id, COUNT(s.product_id) AS total_items, SUM(mu.price) AS total_amount_spent
+FROM dannys_diner.members AS m
+LEFT JOIN dannys_diner.sales AS s ON s.customer_id = m.customer_id
+LEFT JOIN dannys_diner.menu AS mu ON s.product_id = mu.product_id 
+WHERE s.order_date < m.join_date
+GROUP BY m.customer_id
+ORDER BY m.customer_id
 
 -- If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+SELECT s.customer_id, 
+SUM(CASE WHEN s.product_id = 2 THEN 20 * m.price
+ELSE 10 * m.price 
+END) AS points
+FROM dannys_diner.sales AS s 
+LEFT JOIN dannys_diner.menu AS m ON s.product_id = m.product_id 
+GROUP BY s.customer_id
+ORDER BY s.customer_id
 
 -- In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
+SELECT s.customer_id,
+SUM (CASE WHEN s.order_date <= m.join_date + INTERVAL '7 DAY' THEN mu.price * 20 
+ELSE mu.price * 10
+END) AS points
+FROM dannys_diner.members AS m
+LEFT JOIN dannys_diner.sales AS s ON m.customer_id = s.customer_id
+LEFT JOIN dannys_diner.menu AS mu ON s.product_id = mu.product_id  
+WHERE s.order_date <= '2024-01-31' AND s.order_date >= m.join_date
+GROUP BY s.customer_id
+ORDER BY s.customer_id
