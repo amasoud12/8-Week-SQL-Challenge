@@ -26,7 +26,8 @@ JOIN foodie_fi.plans AS p ON p.plan_id = s.plan_id
 WHERE p.plan_name = 'churn'
 
 --How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
-SELECT ROUND(COUNT(*) * 100.0 / (SELECT COUNT(DISTINCT customer_id) FROM foodie_fi.subscriptions), 2) AS CustomerPercentage
+SELECT COUNT(*) AS NumberOfCustomers,
+ROUND(COUNT(*) * 100.0 / (SELECT COUNT(DISTINCT customer_id) FROM foodie_fi.subscriptions), 2) AS CustomerPercentage
 FROM foodie_fi.subscriptions AS s1
 JOIN foodie_fi.plans AS p1 ON s1.plan_id = p1.plan_id
 WHERE p1.plan_name = 'churn' AND s1.start_date > (
